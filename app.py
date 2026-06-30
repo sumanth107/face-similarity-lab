@@ -12,6 +12,7 @@ import streamlit as st
 from similarity import (
     CALIBRATION_CENTER,
     CALIBRATION_SLOPE,
+    SCORE_BOOST_AMOUNT,
     ComparisonResult,
     FaceProcessingError,
     ModelLoadError,
@@ -20,6 +21,8 @@ from similarity import (
     compare_faces,
     create_face_analyzer,
     diagnostics_dict,
+    logistic_score,
+    score_boost,
 )
 from utils import ImageValidationError, decode_image
 
@@ -249,15 +252,19 @@ def _show_result(result: ComparisonResult) -> None:
                 "similarity measures how close those vectors are in the learned feature space."
             )
             st.markdown("#### Calibration")
+            base_score = logistic_score(result.cosine_similarity)
+            adjustment = score_boost(base_score)
             formula = (
                 f"round(100 / (1 + exp(-{CALIBRATION_SLOPE:g} × "
                 f"({result.cosine_similarity:.4f} - {CALIBRATION_CENTER:.2f})))) "
-                f"= {result.score}"
+                f"= {base_score}"
             )
+            if adjustment:
+                formula += f"\n{base_score} + {SCORE_BOOST_AMOUNT} = {result.score}"
             st.code(formula, language=None)
             st.caption(
-                "This logistic mapping is a resemblance-oriented heuristic, not a probability "
-                "and not an identity-verification threshold."
+                "Base scores from 40 through 50 receive a fixed +9 adjustment. This is a "
+                "resemblance-oriented heuristic, not a probability or identity-verification threshold."
             )
             st.table(
                 [

@@ -47,7 +47,7 @@ Main-face selection ──► largest area, then confidence, then center proximi
 ArcFace ResNet50 ──► normalized 512-dimensional embedding
        │
        ▼
-Cosine similarity ──► logistic calibration ──► 0–100 resemblance score
+Cosine similarity ──► logistic calibration ──► optional +9 band adjustment ──► 0–100 score
        │
        ├──► deterministic explanation and quality warnings
        └──► separate landmark-geometry diagnostics (not part of the score)
@@ -92,9 +92,9 @@ may include the automatic Buffalo_L download and ONNX session initialization.
    The vector is L2-normalized before comparison.
 7. **Compare embeddings:** Cosine similarity is the dot product of the two normalized vectors. A
    larger value means the faces are closer in the model's learned feature space.
-8. **Calibrate the score:** A documented logistic function maps the raw cosine value to the app's
-   resemblance-oriented `0–100` scale. Calibration changes presentation, not the embedding or raw
-   cosine value.
+8. **Calibrate the score:** A documented logistic function maps the raw cosine value to a base
+   score. Base scores from 40 through 50 receive a fixed +9 adjustment. Calibration changes
+   presentation, not the embedding or raw cosine value.
 9. **Explain the result:** Fixed rules report the selected faces, detector confidence, raw cosine,
    calibration substitution, final score band, and input-quality warnings.
 
@@ -156,13 +156,16 @@ Open the URL printed by Streamlit, normally <http://localhost:8501>.
 ## How scoring works
 
 ArcFace produces a normalized embedding for each aligned face. The app computes cosine
-similarity and applies this fixed logistic calibration:
+similarity and first applies this fixed logistic calibration:
 
 ```text
-score = round(100 / (1 + exp(-8 × (cosine_similarity - 0.10))))
+base_score = round(100 / (1 + exp(-8 × (cosine_similarity - 0.10))))
+score = base_score + 9, when base_score is between 40 and 50 inclusive
+score = base_score, otherwise
 ```
 
-The mapping is intentionally resemblance-friendly: a cosine similarity of `0.10` maps to `50`.
+The logistic mapping is intentionally resemblance-friendly: a cosine similarity of `0.10` maps
+to a base score of `50`, then the fixed band adjustment produces a displayed score of `59`.
 It is a product heuristic, not a probability, biometric match threshold, or population-calibrated
 identity score.
 

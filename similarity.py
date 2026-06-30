@@ -26,6 +26,9 @@ DETECTION_THRESHOLD = 0.5
 DETECTION_SIZE = (640, 640)
 CALIBRATION_CENTER = 0.10
 CALIBRATION_SLOPE = 8.0
+SCORE_BOOST_MIN = 40
+SCORE_BOOST_MAX = 50
+SCORE_BOOST_AMOUNT = 9
 
 
 class FaceSimilarityError(RuntimeError):
@@ -268,8 +271,8 @@ def cosine_similarity(first: np.ndarray, second: np.ndarray) -> float:
     return float(np.clip(similarity, -1.0, 1.0))
 
 
-def calibrate_score(similarity: float) -> int:
-    """Map cosine similarity to a resemblance-oriented 0-100 heuristic."""
+def logistic_score(similarity: float) -> int:
+    """Map cosine similarity to the base resemblance-oriented logistic score."""
 
     if not math.isfinite(similarity):
         raise ValueError("Cosine similarity must be finite.")
@@ -278,6 +281,23 @@ def calibrate_score(similarity: float) -> int:
         1.0 + math.exp(-CALIBRATION_SLOPE * (clipped - CALIBRATION_CENTER))
     )
     return int(np.clip(round(value), 0, 100))
+
+
+def score_boost(base_score: int) -> int:
+    """Return the fixed display-score boost for the configured base-score band."""
+
+    return (
+        SCORE_BOOST_AMOUNT
+        if SCORE_BOOST_MIN <= base_score <= SCORE_BOOST_MAX
+        else 0
+    )
+
+
+def calibrate_score(similarity: float) -> int:
+    """Return the logistic score plus the documented 40-50 band adjustment."""
+
+    base_score = logistic_score(similarity)
+    return int(np.clip(base_score + score_boost(base_score), 0, 100))
 
 
 def score_label(score: int) -> str:
@@ -545,7 +565,12 @@ def diagnostics_dict(result: ComparisonResult) -> dict[str, Any]:
         "second_image": _face_diagnostics(result.second),
         "comparison": {
             "cosine_similarity": round(result.cosine_similarity, 6),
-            "calibration": ("round(100 / (1 + exp(-8 * (cosine_similarity - 0.10))))"),
+            "calibration": {
+                "base_formula": "round(100 / (1 + exp(-8 * (cosine_similarity - 0.10))))",
+                "adjustment_rule": "Add 9 when the base score is between 40 and 50 inclusive.",
+            },
+            "base_logistic_score": logistic_score(result.cosine_similarity),
+            "score_adjustment": score_boost(logistic_score(result.cosine_similarity)),
             "score": result.score,
             "label": result.label,
             "reliability": result.reliability,

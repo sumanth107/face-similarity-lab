@@ -16,7 +16,9 @@ from similarity import (
     cosine_similarity,
     diagnostics_dict,
     geometry_proportions,
+    logistic_score,
     roast_message,
+    score_boost,
     score_label,
     select_primary_face,
 )
@@ -78,12 +80,16 @@ class SimilarityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             cosine_similarity(np.array([1, 2]), np.array([1, 2, 3]))
 
-    def test_calibration_is_bounded_monotonic_and_centered(self) -> None:
+    def test_calibration_is_bounded_and_applies_requested_band_boost(self) -> None:
         values = [calibrate_score(value) for value in np.linspace(-1.0, 1.0, 101)]
-        self.assertEqual(values, sorted(values))
         self.assertGreaterEqual(min(values), 0)
         self.assertLessEqual(max(values), 100)
-        self.assertEqual(calibrate_score(0.10), 50)
+        self.assertEqual(logistic_score(0.10), 50)
+        self.assertEqual(score_boost(39), 0)
+        self.assertEqual(score_boost(40), 9)
+        self.assertEqual(score_boost(50), 9)
+        self.assertEqual(score_boost(51), 0)
+        self.assertEqual(calibrate_score(0.10), 59)
         self.assertEqual(calibrate_score(0.1071), 51)
 
     def test_score_label_boundaries(self) -> None:
@@ -156,7 +162,7 @@ class SimilarityTests(unittest.TestCase):
 
     def test_upper_moderate_score_has_encouraging_context(self) -> None:
         first = make_face_result(np.array([1.0, 0.0]))
-        cosine = 0.075
+        cosine = 0.05
         second = make_face_result(np.array([cosine, np.sqrt(1.0 - cosine**2)]))
         result = compare_faces(first, second, seed=0)
         self.assertGreaterEqual(result.score, 40)
