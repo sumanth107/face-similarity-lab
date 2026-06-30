@@ -23,7 +23,7 @@ MODEL_NAME = "buffalo_l"
 MODEL_DISPLAY_NAME = "InsightFace Buffalo_L (ArcFace ResNet50)"
 DETECTION_THRESHOLD = 0.5
 DETECTION_SIZE = (640, 640)
-CALIBRATION_CENTER = 0.20
+CALIBRATION_CENTER = 0.10
 CALIBRATION_SLOPE = 8.0
 
 
@@ -502,7 +502,7 @@ def diagnostics_dict(result: ComparisonResult) -> dict[str, Any]:
         "second_image": _face_diagnostics(result.second),
         "comparison": {
             "cosine_similarity": round(result.cosine_similarity, 6),
-            "calibration": ("round(100 / (1 + exp(-8 * (cosine_similarity - 0.20))))"),
+            "calibration": ("round(100 / (1 + exp(-8 * (cosine_similarity - 0.10))))"),
             "score": result.score,
             "label": result.label,
             "reliability": result.reliability,

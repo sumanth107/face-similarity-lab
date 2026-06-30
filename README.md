@@ -13,7 +13,7 @@ Buffalo_L and ONNX Runtime on CPU.
 ## Features
 
 - Side-by-side JPG, JPEG, PNG, and WEBP uploads.
-- SCRFD face detection with all detected boxes shown.
+- SCRFD face detection with up to ten detected boxes shown.
 - Deterministic main-face selection: largest area, then confidence, then center proximity.
 - Five-point alignment and ArcFace ResNet50 embeddings from Buffalo_L.
 - Raw cosine similarity plus a documented 0–100 calibration.
@@ -72,10 +72,10 @@ ArcFace produces a normalized embedding for each aligned face. The app computes 
 similarity and applies this fixed logistic calibration:
 
 ```text
-score = round(100 / (1 + exp(-8 × (cosine_similarity - 0.20))))
+score = round(100 / (1 + exp(-8 × (cosine_similarity - 0.10))))
 ```
 
-The mapping is intentionally resemblance-friendly: a cosine similarity of `0.20` maps to `50`.
+The mapping is intentionally resemblance-friendly: a cosine similarity of `0.10` maps to `50`.
 It is a product heuristic, not a probability, biometric match threshold, or population-calibrated
 identity score.
 
@@ -126,7 +126,7 @@ users should still treat face uploads as sensitive biometric data and obtain app
   interrupted and remains corrupt.
 - **No face detected:** Use a larger, sharper, front-facing face with less occlusion and balanced
   lighting.
-- **Multiple faces:** The app outlines every detected face and uses the largest one. Crop the
+- **Multiple faces:** The app outlines up to ten detected faces and uses the largest one. Crop the
   intended person before upload if that selection is wrong.
 - **Slow first result:** The first result includes the model download and ONNX session startup.
 - **`libGL.so` error on Linux:** Install the packages listed in `packages.txt`.

@@ -83,7 +83,8 @@ class SimilarityTests(unittest.TestCase):
         self.assertEqual(values, sorted(values))
         self.assertGreaterEqual(min(values), 0)
         self.assertLessEqual(max(values), 100)
-        self.assertEqual(calibrate_score(0.20), 50)
+        self.assertEqual(calibrate_score(0.10), 50)
+        self.assertEqual(calibrate_score(0.1071), 51)
 
     def test_score_label_boundaries(self) -> None:
         expected = {
