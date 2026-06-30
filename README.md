@@ -25,12 +25,95 @@ Buffalo_L and ONNX Runtime on CPU.
 ## Architecture
 
 ```text
-Image Upload → Face Detection → Face Alignment/Cropping → Face Embedding Model
-→ Cosine Similarity → Calibrated 0–100 Score → Human-readable Explanation
+JPG / PNG / WEBP
+       │
+       ▼
+Validation + EXIF correction + RGB conversion + bounded resize
+       │
+       ▼
+SCRFD-10GF face detection ──► bounding boxes + confidence + 5 landmarks
+       │
+       ▼
+Main-face selection ──► largest area, then confidence, then center proximity
+       │
+       ▼
+5-point alignment ──► normalized 112 × 112 face crop
+       │
+       ▼
+ArcFace ResNet50 ──► normalized 512-dimensional embedding
+       │
+       ▼
+Cosine similarity ──► logistic calibration ──► 0–100 resemblance score
+       │
+       ├──► deterministic explanation and quality warnings
+       └──► separate landmark-geometry diagnostics (not part of the score)
 ```
 
-The full image is used only to find faces. Recognition uses a 112×112 aligned face crop, which
-mostly removes clothing and background from the comparison.
+### Models and runtime
+
+The application uses the pretrained **InsightFace Buffalo_L** model pack. Only two modules from
+that pack are loaded:
+
+| Pipeline stage | Model | Model file | Output and purpose |
+| --- | --- | --- | --- |
+| Face detection | SCRFD-10GF | `det_10g.onnx` | Finds faces and returns bounding boxes, detection confidence, and five facial landmarks. |
+| Face embedding | ArcFace-style ResNet50 trained on WebFace600K | `w600k_r50.onnx` | Converts one aligned face into a 512-dimensional feature vector. |
+
+Buffalo_L also downloads dense-landmark, 3D-landmark, and age/gender models, but this application
+does not load them. `allowed_modules=["detection", "recognition"]` keeps inference focused and
+reduces memory use. Both active models run through **ONNX Runtime's CPU execution provider**. No
+image is sent to a separate inference API.
+
+The model is initialized lazily and retained with `st.cache_resource`, so Streamlit reruns and
+multiple comparisons reuse the same ONNX sessions. The first comparison can take longer because it
+may include the automatic Buffalo_L download and ONNX session initialization.
+
+### End-to-end data flow
+
+1. **Decode and validate:** Pillow verifies the actual file signature, accepts JPG/JPEG, PNG, and
+   WEBP, applies EXIF orientation, converts to RGB, and rejects empty, malformed, oversized, or
+   over-20-megapixel uploads.
+2. **Bound inference memory:** Images larger than 1600 pixels on their longest side are resized
+   while preserving aspect ratio. The original and inference dimensions remain visible in the
+   diagnostics.
+3. **Detect faces:** SCRFD runs with a `640 × 640` detector input and `0.50` confidence threshold.
+   Up to ten faces are retained and displayed.
+4. **Select the primary face:** The valid bounding box with the largest area is selected. Equal
+   areas are resolved by confidence and then proximity to the image center, making group-photo
+   behavior deterministic.
+5. **Align the face:** The detected eye, nose, and mouth-corner landmarks define a similarity
+   transform. InsightFace produces a standardized `112 × 112` crop so roll, location, and scale
+   differences have less effect on the embedding.
+6. **Create the embedding:** ArcFace ResNet50 maps the aligned crop to 512 floating-point features.
+   The vector is L2-normalized before comparison.
+7. **Compare embeddings:** Cosine similarity is the dot product of the two normalized vectors. A
+   larger value means the faces are closer in the model's learned feature space.
+8. **Calibrate the score:** A documented logistic function maps the raw cosine value to the app's
+   resemblance-oriented `0–100` scale. Calibration changes presentation, not the embedding or raw
+   cosine value.
+9. **Explain the result:** Fixed rules report the selected faces, detector confidence, raw cosine,
+   calibration substitution, final score band, and input-quality warnings.
+
+### What affects the main score
+
+Only cosine similarity between the two normalized ArcFace embeddings affects the main score.
+Detection confidence and quality warnings communicate reliability but never add or subtract
+points. The five-landmark geometry table is also separate: it compares visible proportions such
+as mouth width and eye-to-nose distance, but it neither changes the score nor claims to expose
+ArcFace's internal reasoning.
+
+The full image is used to locate faces. The embedding model receives only the aligned crop, which
+substantially reduces sensitivity to outfits, body shape, and background. Results can still be
+affected by pose, expression, hairstyle near the crop, makeup, occlusion, aging, lighting, blur,
+and demographic bias in the training data.
+
+### Code responsibilities
+
+- `app.py`: Streamlit layout, upload/example selection, cached model lifecycle, session state,
+  results, and transparency views.
+- `similarity.py`: model initialization, detection, selection, alignment, embeddings, cosine
+  similarity, calibration, geometry diagnostics, explanations, and score-band messages.
+- `utils.py`: secure image decoding, resizing, RGB/BGR conversion, and bounding-box overlays.
 
 ## Requirements
 
