@@ -129,8 +129,15 @@ st.markdown(
             pointer-events: none;
             position: fixed;
             right: 1.15rem;
+            text-align: right;
             user-select: none;
             z-index: 999;
+        }
+        .sumanth-watermark-subline {
+            font-size: 0.66rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            margin-top: 0.08rem;
         }
         @media (max-width: 640px) {
             .sumanth-watermark {font-size: 0.7rem; right: 0.75rem;}
@@ -331,7 +338,10 @@ def _show_result(result: ComparisonResult) -> None:
 st.markdown('<p class="app-kicker">Portrait comparison</p>', unsafe_allow_html=True)
 st.title("Face Similarity")
 st.markdown(
-    '<div class="sumanth-watermark">I kinda told you -Sumanth</div>',
+    '<div class="sumanth-watermark">'
+    "<div>I kinda told you -Sumanth</div>"
+    '<div class="sumanth-watermark-subline">(powered by math, petty by choice)</div>'
+    "</div>",
     unsafe_allow_html=True,
 )
 
