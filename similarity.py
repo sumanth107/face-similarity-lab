@@ -449,10 +449,16 @@ def build_explanation(
         if warning_count
         else f"Reliability is {reliability.lower()} and no obvious input-quality warning was detected."
     )
+    score_context = (
+        "This suggests a noticeable resemblance, but not an overwhelming one. "
+        if 40 <= score <= 50
+        else ""
+    )
     return (
         f"Both primary faces were detected and aligned. Their normalized ArcFace embeddings have "
         f"a cosine similarity of {similarity:.3f}. Applying the documented calibration maps that "
-        f"value to {score}/100 ({label.lower()}). {geometry_sentence} {warning_sentence} Clothing, "
+        f"value to {score}/100 ({label.lower()}). {score_context}{geometry_sentence} "
+        f"{warning_sentence} Clothing, "
         "hairstyle, and background are mostly excluded because only aligned face crops are embedded. "
         "This is a resemblance heuristic, not proof that the people share an identity."
     )
@@ -463,47 +469,58 @@ def roast_message(score: int, seed: int | None = None) -> str:
 
     if score <= 30:
         options = (
-            "You can't be serious — these two barely look related.",
-            "Nice try. The pixels aren't buying it.",
-            "The resemblance took the day off.",
-            "Same species. Ambitious comparison.",
-            "That similarity is playing hide-and-seek. It's winning.",
-            "Even the pixels said, ‘Who?’",
-            "You brought vibes to a face-recognition fight.",
-            "The math has respectfully declined.",
+            "Arre yaar, even the pixels are saying ‘not same, boss.’",
+            "Bro, this comparison needs more jugaad than the model can provide.",
+            "Same species, yes. Same face? Not happening, boss.",
+            "The resemblance went for chai and never came back.",
+            "Kya yaar, the math has already logged off.",
+            "This match has less connection than office Wi-Fi.",
+            "Even after full debugging, similarity is not found.",
+            "Boss, this ticket is getting closed as ‘cannot reproduce.’",
+        )
+    elif score <= 39:
+        options = (
+            "Thoda resemblance is there, but don't raise a PR yet.",
+            "I can see the idea, yaar — implementation is still pending.",
+            "Some matching vibes, but production approval? Not yet.",
+            "The face card is connecting, but network is weak.",
+            "Not zero, boss. Just very beta.",
+            "There is a small signal; don't make a presentation yet.",
+            "Looks related only after one chai and plenty of imagination.",
+            "The model says maybe; the reviewer says changes requested.",
         )
     elif score <= 50:
         options = (
-            "Really?! You're making the model work overtime.",
-            "There's something there, but don't bet the group chat on it.",
-            "Okay, I see the vision. Squinting helps.",
-            "Cousins in a parallel universe, maybe.",
-            "The resemblance clocked in part-time.",
-            "Not twins, but the casting director might pause.",
-            "There's a resemblance — on airplane mode.",
-            "The face-card echo is faint, but it's there.",
+            "Haan, some resemblance is definitely there — just not full power.",
+            "You're onto something, boss. Similar, but not same-to-same.",
+            "Decent match, yaar. Enough to notice, not enough to confuse.",
+            "The resemblance is there in staging; production is not fully convinced.",
+            "Solid observation. The faces rhyme; they don't duplicate.",
+            "Not overwhelming, but definitely more than coincidence.",
+            "Good catch, boss — some features line up nicely.",
+            "There is a proper resemblance, just not a dramatic one.",
         )
     elif score <= 70:
         options = (
-            "Get your eyes checked — the resemblance is right there.",
-            "Okay, now you're onto something.",
-            "The casting director just leaned forward.",
-            "Same face energy, different save file.",
-            "Not twins, but the algorithm raised an eyebrow.",
-            "The resemblance did not come here to be subtle.",
-            "This is where the group chat starts arguing.",
-            "Close enough to confuse an aunt at a wedding.",
+            "Arre boss, resemblance is clearly visible. What more logs you need?",
+            "This is a solid match, yaar. The model has given green signal.",
+            "Same face energy, different deployment.",
+            "The casting director will definitely shortlist this pair.",
+            "Pakka resemblance. Even QA will approve.",
+            "Close enough to confuse the family WhatsApp group.",
+            "Boss, this similarity is production-ready.",
+            "One more point and people will start saying same-to-same.",
         )
     else:
         options = (
-            "Duh!? Are you blind?",
-            "Really?! What's wrong with you?",
-            "You can't be serious.",
-            "At this point, the mirror is asking questions.",
-            "The resemblance just filed for joint custody.",
-            "Same face card, premium edition.",
-            "The algorithm did a double take.",
-            "Be honest — you uploaded the same person twice, didn't you?",
+            "Arre yaar, this is practically same-to-same!",
+            "Boss, did you upload the same person twice or what?",
+            "Even the model did a double take. Full marks.",
+            "This resemblance is so high, no further debugging required.",
+            "Pakka twins energy. Ticket closed.",
+            "The mirror itself is asking for clarification, boss.",
+            "Same face card, enterprise edition.",
+            "Yaar, at this point even mummy will ask who's who.",
         )
     if seed is None:
         return secrets.choice(options)

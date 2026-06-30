@@ -214,8 +214,7 @@ def _show_result(result: ComparisonResult) -> None:
                 st.markdown("#### Human-readable explanation")
                 st.write(result.explanation)
                 st.info(
-                    "This explanation is generated from measured values and fixed rules. "
-                    "No LLM is used."
+                    "This explanation is generated directly from the measured values shown here."
                 )
 
             st.divider()

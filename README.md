@@ -4,7 +4,7 @@ A transparent Streamlit application for comparing the visual resemblance of two 
 celebrity faces. It detects and aligns the main face in each upload, creates ArcFace embeddings,
 computes cosine similarity, and maps the result to a documented 0–100 resemblance score.
 
-No paid API, API key, hosted LLM, or remote inference service is used. The app uses InsightFace
+No paid API, API key, or remote inference service is used. The app uses InsightFace
 Buffalo_L and ONNX Runtime on CPU.
 
 > **Not identity verification:** This project reports a heuristic visual-resemblance score. It is
@@ -19,7 +19,7 @@ Buffalo_L and ONNX Runtime on CPU.
 - Raw cosine similarity plus a documented 0–100 calibration.
 - Supporting landmark-geometry comparisons that never alter the main score.
 - Detection confidence, quality warnings, aligned crops, model settings, and diagnostic JSON.
-- Deterministic human-readable explanations with no LLM.
+- Deterministic human-readable explanations derived from the displayed measurements.
 - A deliberately playful score-band roast.
 
 ## Architecture

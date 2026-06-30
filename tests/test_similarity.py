@@ -154,12 +154,24 @@ class SimilarityTests(unittest.TestCase):
         self.assertFalse(contains_key(diagnostics, "embedding"))
         self.assertFalse(contains_key(diagnostics, "image_bytes"))
 
+    def test_upper_moderate_score_has_encouraging_context(self) -> None:
+        first = make_face_result(np.array([1.0, 0.0]))
+        cosine = 0.075
+        second = make_face_result(np.array([cosine, np.sqrt(1.0 - cosine**2)]))
+        result = compare_faces(first, second, seed=0)
+        self.assertGreaterEqual(result.score, 40)
+        self.assertLessEqual(result.score, 50)
+        self.assertIn(
+            "noticeable resemblance, but not an overwhelming one", result.explanation
+        )
+
     def test_roast_is_stable_and_band_specific(self) -> None:
         self.assertEqual(roast_message(90, 123), roast_message(90, 123))
         self.assertNotEqual(roast_message(10, 0), roast_message(90, 0))
-        for score in (10, 40, 60, 90):
+        for score in (10, 35, 45, 60, 90):
             options = {roast_message(score, seed) for seed in range(8)}
             self.assertEqual(len(options), 8)
+        self.assertIn("resemblance is definitely there", roast_message(45, 0))
 
 
 if __name__ == "__main__":
