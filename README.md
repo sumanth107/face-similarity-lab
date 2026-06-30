@@ -121,7 +121,7 @@ and demographic bias in the training data.
 
 ## Requirements
 
-- Python 3.12 (the tested and deployment-targeted version)
+- Python 3.12–3.14 (local tests use 3.12; deployment dependencies include Python 3.14 wheels)
 - About 1 GB of free disk space for Python packages and the first-run model download
 - Internet access on first model use
 - CPU inference; no GPU is required
@@ -210,7 +210,8 @@ identity probabilities and can change when the implementation changes.
 1. Push this directory to a GitHub repository.
 2. Sign in at <https://share.streamlit.io> with GitHub.
 3. Choose **Create app** and select the repository, `main` branch, and `app.py` entrypoint.
-4. Open **Advanced settings** and select Python 3.12.
+4. Open **Advanced settings** and select Python 3.14. The pinned compiled dependencies include
+   Python 3.14 Linux wheels.
 5. Deploy. No secrets or API keys are needed.
 6. On the first comparison, allow time for Buffalo_L to download and initialize. Later comparisons
    reuse the process-cached model until the app is restarted or sleeps.
