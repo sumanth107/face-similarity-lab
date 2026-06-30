@@ -171,7 +171,7 @@ class SimilarityTests(unittest.TestCase):
         for score in (10, 35, 45, 60, 90):
             options = {roast_message(score, seed) for seed in range(8)}
             self.assertEqual(len(options), 8)
-        self.assertIn("resemblance is definitely there", roast_message(45, 0))
+        self.assertIn("definitely some resemblance", roast_message(45, 0))
 
 
 if __name__ == "__main__":
