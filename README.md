@@ -160,8 +160,7 @@ similarity and first applies this fixed logistic calibration:
 
 ```text
 base_score = round(100 / (1 + exp(-8 × (cosine_similarity - 0.10))))
-score = base_score + 9, when base_score is between 40 and 50 inclusive
-score = base_score, otherwise
+score = base_score
 ```
 
 The logistic mapping is intentionally resemblance-friendly: a cosine similarity of `0.10` maps
