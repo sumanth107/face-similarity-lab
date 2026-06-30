@@ -480,13 +480,13 @@ def roast_message(score: int, seed: int | None = None) -> str:
         )
     elif score <= 39:
         options = (
-            "There's a hint of resemblance, if you squint politely.",
+            "There's a hint of resemblance, if you squint.",
             "I see the idea. The evidence is still buffering.",
             "A little similar, but the jury wants better photos.",
             "The resemblance showed up, but only part-time.",
             "Not impossible — just aggressively subtle.",
             "There's a signal here, but it's on one bar.",
-            "Maybe cousins in a very large family.",
+            "Maybe cousins in a parallel universe.",
             "The model says ‘maybe’; the mirror says ‘keep looking.’",
         )
     elif score <= 50:
