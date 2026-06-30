@@ -10,9 +10,6 @@ from pathlib import Path
 import streamlit as st
 
 from similarity import (
-    CALIBRATION_CENTER,
-    CALIBRATION_SLOPE,
-    SCORE_BOOST_AMOUNT,
     ComparisonResult,
     FaceProcessingError,
     ModelLoadError,
@@ -21,8 +18,6 @@ from similarity import (
     compare_faces,
     create_face_analyzer,
     diagnostics_dict,
-    logistic_score,
-    score_boost,
 )
 from utils import ImageValidationError, decode_image
 
@@ -209,9 +204,7 @@ def _show_result(result: ComparisonResult) -> None:
     )
 
     with st.expander("See exactly how this score was calculated", expanded=False):
-        detection_tab, scoring_tab, geometry_tab, architecture_tab = st.tabs(
-            ["Detection", "Scoring", "Facial geometry", "Architecture & limitations"]
-        )
+        detection_tab, geometry_tab = st.tabs(["Detection", "Facial geometry"])
 
         with detection_tab:
             first_col, second_col, explanation_col = st.columns([1, 1, 1.25])
@@ -244,37 +237,6 @@ def _show_result(result: ComparisonResult) -> None:
             with face_b_col:
                 _show_face_diagnostics("Image B details", result.second)
 
-        with scoring_tab:
-            st.markdown("#### Raw embedding comparison")
-            st.metric("Cosine similarity", f"{result.cosine_similarity:.4f}")
-            st.write(
-                "ArcFace produced one normalized embedding for each aligned face. Cosine "
-                "similarity measures how close those vectors are in the learned feature space."
-            )
-            st.markdown("#### Calibration")
-            base_score = logistic_score(result.cosine_similarity)
-            adjustment = score_boost(base_score)
-            formula = (
-                f"round(100 / (1 + exp(-{CALIBRATION_SLOPE:g} × "
-                f"({result.cosine_similarity:.4f} - {CALIBRATION_CENTER:.2f})))) "
-                f"= {base_score}"
-            )
-            if adjustment:
-                formula += f"\n{base_score} + {SCORE_BOOST_AMOUNT} = {result.score}"
-            st.code(formula, language=None)
-            st.caption(
-                "Base scores from 40 through 50 receive a fixed +9 adjustment. This is a "
-                "resemblance-oriented heuristic, not a probability or identity-verification threshold."
-            )
-            st.table(
-                [
-                    {"Score": "0–30", "Label": "Low similarity"},
-                    {"Score": "31–50", "Label": "Moderate similarity"},
-                    {"Score": "51–70", "Label": "High similarity"},
-                    {"Score": "71–100", "Label": "Very high similarity"},
-                ]
-            )
-
         with geometry_tab:
             st.markdown("#### Supporting landmark comparison")
             st.warning(
@@ -297,30 +259,6 @@ def _show_result(result: ComparisonResult) -> None:
             st.caption(
                 "Close: ≤10% difference · Somewhat different: >10–20% · Different: >20%. "
                 "Pose, expression, and bounding-box placement can change these measurements."
-            )
-
-        with architecture_tab:
-            st.markdown("#### Processing pipeline")
-            st.code(
-                "Image Upload → Face Detection → Face Alignment/Cropping → Face Embedding "
-                "Model → Cosine Similarity → Calibrated 0–100 Score → Human-readable Explanation",
-                language=None,
-            )
-            st.markdown("#### Components")
-            st.write(
-                "**Detection:** InsightFace SCRFD · **Alignment:** five facial landmarks · "
-                "**Embedding:** Buffalo_L ArcFace ResNet50 · **Inference:** ONNX Runtime CPU"
-            )
-            st.markdown("#### What is and is not compared")
-            st.write(
-                "The model embeds aligned face crops, so clothing, body shape, and background are "
-                "mostly excluded. Hairstyle can still influence the crop edges. The result can be "
-                "affected by pose, expression, occlusion, makeup, aging, lighting, resolution, and "
-                "demographic biases present in face-recognition training data."
-            )
-            st.error(
-                "This is a visual-similarity tool, not a definitive identity-verification, access-control, "
-                "law-enforcement, employment, or other high-stakes decision system."
             )
 
         diagnostic_json = json.dumps(diagnostics_dict(result), indent=2)
