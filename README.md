@@ -16,7 +16,7 @@ computes cosine similarity, and maps the result to a documented 0–100 resembla
 
 ## Features
 
-- Side-by-side JPG, JPEG, PNG, WEBP, HEIC, and HEIF uploads.
+- Side-by-side JPG, JPEG, MPO, PNG, WEBP, HEIC, and HEIF uploads.
 - SCRFD face detection with up to ten detected boxes shown.
 - Deterministic main-face selection: largest area, then confidence, then center proximity.
 - Five-point alignment and ArcFace ResNet50 embeddings from Buffalo_L.
@@ -29,7 +29,7 @@ computes cosine similarity, and maps the result to a documented 0–100 resembla
 ## Architecture
 
 ```text
-JPG / PNG / WEBP / HEIC / HEIF
+JPG / MPO / PNG / WEBP / HEIC / HEIF
        │
        ▼
 Validation + EXIF correction + RGB conversion + bounded resize
@@ -75,7 +75,7 @@ may include the automatic Buffalo_L download and ONNX session initialization.
 ### End-to-end data flow
 
 1. **Decode and validate:** Pillow and `pillow-heif` verify the actual file signature, accept
-   JPG/JPEG, PNG, WEBP, HEIC, and HEIF, apply EXIF orientation, convert to RGB, and reject empty,
+   JPG/JPEG, MPO, PNG, WEBP, HEIC, and HEIF, apply EXIF orientation, convert to RGB, and reject empty,
    malformed, oversized, or over-20-megapixel uploads.
 2. **Bound inference memory:** Images larger than 1600 pixels on their longest side are resized
    while preserving aspect ratio. The original and inference dimensions remain visible in the

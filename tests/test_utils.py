@@ -35,6 +35,17 @@ class ImageUtilityTests(unittest.TestCase):
         self.assertEqual(decoded.mode, "RGB")
         self.assertEqual(decoded.size, (32, 24))
 
+    def test_decode_mpo_primary_frame_to_rgb(self) -> None:
+        buffer = io.BytesIO()
+        first = Image.new("RGB", (32, 24), "navy")
+        second = Image.new("RGB", (32, 24), "red")
+        first.save(buffer, format="MPO", save_all=True, append_images=[second])
+
+        decoded = decode_image(buffer.getvalue())
+
+        self.assertEqual(decoded.mode, "RGB")
+        self.assertEqual(decoded.size, (32, 24))
+
     def test_decode_accepts_valid_images_larger_than_two_megabytes(self) -> None:
         pixels = np.random.default_rng(7).integers(
             0, 256, size=(1024, 1024, 3), dtype=np.uint8

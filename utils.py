@@ -18,7 +18,7 @@ register_heif_opener()
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 MAX_IMAGE_PIXELS = 20_000_000
 MAX_INFERENCE_SIDE = 1_600
-SUPPORTED_FORMATS = {"HEIF", "JPEG", "PNG", "WEBP"}
+SUPPORTED_FORMATS = {"HEIF", "JPEG", "MPO", "PNG", "WEBP"}
 
 
 class ImageValidationError(ValueError):
@@ -63,7 +63,7 @@ def decode_image(
                 if image_format not in SUPPORTED_FORMATS:
                     raise ImageValidationError(
                         f"The file contains {image_format or 'an unknown format'} data, not a "
-                        "supported JPG, JPEG, PNG, WEBP, HEIC, or HEIF image."
+                        "supported JPG, JPEG, MPO, PNG, WEBP, HEIC, or HEIF image."
                     )
                 if width <= 0 or height <= 0:
                     raise ImageValidationError("The image has invalid dimensions.")
@@ -75,7 +75,7 @@ def decode_image(
 
             # Reopen after verify(), which intentionally invalidates the decoder.
             with Image.open(io.BytesIO(data)) as decoded:
-                decoded.seek(0)  # Use the first frame for animated WEBP files.
+                decoded.seek(0)  # Use the primary frame for multi-image formats.
                 decoded.load()
                 oriented = ImageOps.exif_transpose(decoded)
                 return oriented.convert("RGB")
@@ -83,7 +83,7 @@ def decode_image(
         raise
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError) as exc:
         raise ImageValidationError(
-            "This file could not be decoded as a valid JPG, PNG, WEBP, HEIC, or HEIF image."
+            "This file could not be decoded as a valid JPG, MPO, PNG, WEBP, HEIC, or HEIF image."
         ) from exc
     except Image.DecompressionBombError as exc:
         raise ImageValidationError(

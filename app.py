@@ -191,15 +191,11 @@ def _show_face_diagnostics(title: str, face) -> None:
 
 
 def _show_result(result: ComparisonResult) -> None:
-    score_col, context_col = st.columns([1, 2], vertical_alignment="center")
-    with score_col:
-        st.metric("Face resemblance score", f"{result.score}/100")
-        st.progress(result.score)
-        st.markdown(
-            f'<div class="score-label">{result.label}</div>', unsafe_allow_html=True
-        )
-    with context_col:
-        st.write(f"**Result reliability:** {result.reliability}")
+    st.metric("Face resemblance score", f"{result.score}/100")
+    st.progress(result.score)
+    st.markdown(
+        f'<div class="score-label">{result.label}</div>', unsafe_allow_html=True
+    )
 
     st.markdown(
         f'<div class="roast-box">{result.roast}</div>',
@@ -295,17 +291,17 @@ if input_source == "Upload images":
     with upload_col_a:
         upload_a = st.file_uploader(
             "Upload image A",
-            type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
+            type=["jpg", "jpeg", "mpo", "png", "webp", "heic", "heif"],
             key="upload_a",
         )
-        st.caption("Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF")
+        st.caption("Supported formats: JPG, JPEG, MPO, PNG, WEBP, HEIC, and HEIF")
     with upload_col_b:
         upload_b = st.file_uploader(
             "Upload image B",
-            type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
+            type=["jpg", "jpeg", "mpo", "png", "webp", "heic", "heif"],
             key="upload_b",
         )
-        st.caption("Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF")
+        st.caption("Supported formats: JPG, JPEG, MPO, PNG, WEBP, HEIC, and HEIF")
     bytes_a = upload_a.getvalue() if upload_a is not None else None
     bytes_b = upload_b.getvalue() if upload_b is not None else None
 else:
