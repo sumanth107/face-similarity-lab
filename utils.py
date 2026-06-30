@@ -10,12 +10,15 @@ from typing import Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps, UnidentifiedImageError
+from pillow_heif import register_heif_opener
 
 
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+register_heif_opener()
+
+MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 MAX_IMAGE_PIXELS = 20_000_000
 MAX_INFERENCE_SIDE = 1_600
-SUPPORTED_FORMATS = {"JPEG", "PNG", "WEBP"}
+SUPPORTED_FORMATS = {"HEIF", "JPEG", "PNG", "WEBP"}
 
 
 class ImageValidationError(ValueError):
@@ -59,7 +62,8 @@ def decode_image(
                 width, height = probe.size
                 if image_format not in SUPPORTED_FORMATS:
                     raise ImageValidationError(
-                        "Unsupported image format. Use JPG, JPEG, PNG, or WEBP."
+                        f"The file contains {image_format or 'an unknown format'} data, not a "
+                        "supported JPG, JPEG, PNG, WEBP, HEIC, or HEIF image."
                     )
                 if width <= 0 or height <= 0:
                     raise ImageValidationError("The image has invalid dimensions.")
@@ -79,7 +83,7 @@ def decode_image(
         raise
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError) as exc:
         raise ImageValidationError(
-            "This file could not be decoded as a valid JPG, PNG, or WEBP image."
+            "This file could not be decoded as a valid JPG, PNG, WEBP, HEIC, or HEIF image."
         ) from exc
     except Image.DecompressionBombError as exc:
         raise ImageValidationError(

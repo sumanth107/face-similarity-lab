@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import unittest
 
+import numpy as np
 from PIL import Image
 
 from utils import (
@@ -26,6 +27,25 @@ class ImageUtilityTests(unittest.TestCase):
                 decoded = decode_image(image_bytes(image_format))
                 self.assertEqual(decoded.mode, "RGB")
                 self.assertEqual(decoded.size, (32, 24))
+
+    def test_decode_heif_to_rgb(self) -> None:
+        payload = image_bytes("HEIF")
+        decoded = decode_image(payload)
+
+        self.assertEqual(decoded.mode, "RGB")
+        self.assertEqual(decoded.size, (32, 24))
+
+    def test_decode_accepts_valid_images_larger_than_two_megabytes(self) -> None:
+        pixels = np.random.default_rng(7).integers(
+            0, 256, size=(1024, 1024, 3), dtype=np.uint8
+        )
+        buffer = io.BytesIO()
+        Image.fromarray(pixels).save(buffer, format="PNG")
+        payload = buffer.getvalue()
+
+        self.assertGreater(len(payload), 2 * 1024 * 1024)
+        decoded = decode_image(payload)
+        self.assertEqual(decoded.size, (1024, 1024))
 
     def test_decode_rejects_empty_corrupt_unsupported_and_oversized_files(self) -> None:
         with self.assertRaises(ImageValidationError):

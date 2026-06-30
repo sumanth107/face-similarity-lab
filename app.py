@@ -292,16 +292,16 @@ if input_source == "Upload images":
     with upload_col_a:
         upload_a = st.file_uploader(
             "Upload image A",
-            type=["jpg", "jpeg", "png", "webp"],
+            type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
             key="upload_a",
-            help="Maximum 10 MB and 20 megapixels.",
+            help="Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF.",
         )
     with upload_col_b:
         upload_b = st.file_uploader(
             "Upload image B",
-            type=["jpg", "jpeg", "png", "webp"],
+            type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
             key="upload_b",
-            help="Maximum 10 MB and 20 megapixels.",
+            help="Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF.",
         )
     bytes_a = upload_a.getvalue() if upload_a is not None else None
     bytes_b = upload_b.getvalue() if upload_b is not None else None
