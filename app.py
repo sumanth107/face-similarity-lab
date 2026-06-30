@@ -96,6 +96,9 @@ st.markdown(
             border: 1px dashed #aa93cd;
             border-radius: 0.85rem;
         }
+        [data-testid="stFileUploaderDropzoneInstructions"] small {
+            display: none !important;
+        }
         [data-testid="stMetric"] {
             background: var(--surface);
             border: 1px solid rgba(124, 91, 181, 0.18);
@@ -294,15 +297,15 @@ if input_source == "Upload images":
             "Upload image A",
             type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
             key="upload_a",
-            help="Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF.",
         )
+        st.caption("Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF")
     with upload_col_b:
         upload_b = st.file_uploader(
             "Upload image B",
             type=["jpg", "jpeg", "png", "webp", "heic", "heif"],
             key="upload_b",
-            help="Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF.",
         )
+        st.caption("Supported formats: JPG, JPEG, PNG, WEBP, HEIC, and HEIF")
     bytes_a = upload_a.getvalue() if upload_a is not None else None
     bytes_b = upload_b.getvalue() if upload_b is not None else None
 else:
