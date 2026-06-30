@@ -239,10 +239,6 @@ def _show_result(result: ComparisonResult) -> None:
 
         with geometry_tab:
             st.markdown("#### Supporting landmark comparison")
-            st.warning(
-                "These approximate proportions support interpretation but do not affect the "
-                "ArcFace score and do not reveal which features ArcFace used."
-            )
             st.table(
                 [
                     {
