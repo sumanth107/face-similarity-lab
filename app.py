@@ -26,7 +26,6 @@ from utils import ImageValidationError, decode_image, pair_seed
 
 st.set_page_config(
     page_title="Face Similarity Lab",
-    page_icon="👥",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -51,17 +50,66 @@ EXAMPLE_PAIRS = {
 st.markdown(
     """
     <style>
-        .block-container {max-width: 1180px; padding-top: 2rem;}
-        .score-label {font-size: 1.15rem; font-weight: 700; margin-top: -0.5rem;}
+        :root {
+            --ink: #24163b;
+            --muted-ink: #6f6282;
+            --lavender: #7c5bb5;
+            --lavender-dark: #5f3f92;
+            --lavender-soft: #eee7fa;
+            --surface: rgba(255, 255, 255, 0.82);
+        }
+        html, body, .stApp, [data-testid="stAppViewContainer"],
+        button, input, textarea, select {
+            font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .stApp {
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 12% 0%, rgba(216, 196, 246, 0.56), transparent 31rem),
+                linear-gradient(180deg, #f6f1fd 0%, #fbf9fe 56%, #f7f3fc 100%);
+        }
+        [data-testid="stHeader"] {background: transparent;}
+        .block-container {max-width: 1180px; padding-top: 3.25rem;}
+        h1, h2, h3, h4 {
+            color: var(--ink);
+            font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+            letter-spacing: -0.025em;
+        }
+        h1 {font-size: clamp(2.35rem, 5vw, 4rem) !important; font-weight: 650 !important;}
+        .app-kicker {
+            color: var(--lavender-dark);
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            margin-bottom: -0.65rem;
+            text-transform: uppercase;
+        }
+        [data-testid="stFileUploaderDropzone"] {
+            background: var(--surface);
+            border: 1px dashed #aa93cd;
+            border-radius: 0.85rem;
+        }
+        [data-testid="stMetric"] {
+            background: var(--surface);
+            border: 1px solid rgba(124, 91, 181, 0.18);
+            border-radius: 0.85rem;
+            padding: 1rem 1.15rem;
+        }
+        [data-testid="stExpander"] {
+            background: rgba(255, 255, 255, 0.68);
+            border: 1px solid rgba(124, 91, 181, 0.20);
+            border-radius: 0.85rem;
+        }
+        .score-label {color: var(--lavender-dark); font-size: 1.15rem; font-weight: 700; margin-top: -0.5rem;}
         .roast-box {
-            border-left: 5px solid #f59e0b;
-            background: rgba(245, 158, 11, 0.10);
+            border-left: 5px solid var(--lavender);
+            background: rgba(238, 231, 250, 0.88);
             border-radius: 0.4rem;
             padding: 0.85rem 1rem;
             margin: 0.75rem 0 1rem 0;
             font-size: 1.08rem;
         }
-        .technical-note {color: #64748b; font-size: 0.9rem;}
+        .technical-note {color: var(--muted-ink); font-size: 0.9rem;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -256,15 +304,8 @@ def _show_result(result: ComparisonResult) -> None:
         )
 
 
-st.title("👥 Face Similarity Lab")
-st.write(
-    "Compare the visual resemblance of two human faces using locally executed face detection, "
-    "alignment, and ArcFace embeddings—without a paid API or LLM."
-)
-st.caption(
-    "When hosted, uploads travel to this Streamlit server for in-memory processing. This app does "
-    "not intentionally save, forward, or include them in diagnostic downloads."
-)
+st.markdown('<p class="app-kicker">Portrait comparison</p>', unsafe_allow_html=True)
+st.title("Face Similarity")
 
 input_source = st.radio(
     "Choose image source",
@@ -399,9 +440,3 @@ stored_signature = st.session_state.get("comparison_signature")
 if isinstance(stored_result, ComparisonResult) and stored_signature == signature:
     st.divider()
     _show_result(stored_result)
-
-st.divider()
-st.caption(
-    "Non-commercial research/demo use only. Face embeddings are biometric representations; process "
-    "images only with appropriate permission."
-)
