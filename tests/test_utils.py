@@ -9,7 +9,6 @@ from utils import (
     ImageValidationError,
     decode_image,
     draw_face_overlay,
-    pair_seed,
     prepare_for_inference,
 )
 
@@ -55,7 +54,7 @@ class ImageUtilityTests(unittest.TestCase):
         self.assertTrue(resized.resized_for_inference)
         self.assertEqual(resized.inference_size, (100, 50))
 
-    def test_overlay_and_pair_seed_are_deterministic(self) -> None:
+    def test_overlay_is_rendered(self) -> None:
         image = Image.new("RGB", (100, 100), "white")
         overlay = draw_face_overlay(
             image,
@@ -65,8 +64,6 @@ class ImageUtilityTests(unittest.TestCase):
         )
         self.assertEqual(overlay.size, image.size)
         self.assertNotEqual(overlay.getpixel((10, 10)), image.getpixel((10, 10)))
-        self.assertEqual(pair_seed(b"a", b"b"), pair_seed(b"a", b"b"))
-        self.assertNotEqual(pair_seed(b"a", b"b"), pair_seed(b"b", b"a"))
 
 
 if __name__ == "__main__":

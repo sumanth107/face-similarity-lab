@@ -21,7 +21,7 @@ from similarity import (
     create_face_analyzer,
     diagnostics_dict,
 )
-from utils import ImageValidationError, decode_image, pair_seed
+from utils import ImageValidationError, decode_image
 
 
 st.set_page_config(
@@ -181,7 +181,7 @@ def _show_result(result: ComparisonResult) -> None:
         )
 
     st.markdown(
-        f'<div class="roast-box"><strong>Playful roast:</strong> {result.roast}</div>',
+        f'<div class="roast-box">{result.roast}</div>',
         unsafe_allow_html=True,
     )
 
@@ -424,11 +424,7 @@ if (
                 raise NoFaceDetectedError(f"Image B: {exc}") from exc
             except FaceProcessingError as exc:
                 raise FaceProcessingError(f"Image B: {exc}") from exc
-            comparison = compare_faces(
-                first_result,
-                second_result,
-                seed=pair_seed(bytes_a, bytes_b),
-            )
+            comparison = compare_faces(first_result, second_result)
         st.session_state["comparison_result"] = comparison
         st.session_state["comparison_signature"] = signature
     except NoFaceDetectedError as exc:

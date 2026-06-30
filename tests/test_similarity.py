@@ -157,6 +157,9 @@ class SimilarityTests(unittest.TestCase):
     def test_roast_is_stable_and_band_specific(self) -> None:
         self.assertEqual(roast_message(90, 123), roast_message(90, 123))
         self.assertNotEqual(roast_message(10, 0), roast_message(90, 0))
+        for score in (10, 40, 60, 90):
+            options = {roast_message(score, seed) for seed in range(8)}
+            self.assertEqual(len(options), 8)
 
 
 if __name__ == "__main__":

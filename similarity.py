@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.metadata
 import math
+import secrets
 from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
 
@@ -362,9 +363,9 @@ def geometry_proportions(
 
 
 def compare_faces(
-    first: FaceResult, second: FaceResult, *, seed: int
+    first: FaceResult, second: FaceResult, *, seed: int | None = None
 ) -> ComparisonResult:
-    """Build the complete deterministic comparison result."""
+    """Build the complete comparison result."""
 
     similarity = cosine_similarity(first.embedding, second.embedding)
     score = calibrate_score(similarity)
@@ -457,30 +458,55 @@ def build_explanation(
     )
 
 
-def roast_message(score: int, seed: int) -> str:
-    """Return a stable playful message for the score band."""
+def roast_message(score: int, seed: int | None = None) -> str:
+    """Choose a roast for the score band, with an optional seed for tests."""
 
     if score <= 30:
         options = (
             "You can't be serious — these two barely look related.",
             "Nice try. The pixels aren't buying it.",
+            "The resemblance took the day off.",
+            "Same species. Ambitious comparison.",
+            "That similarity is playing hide-and-seek. It's winning.",
+            "Even the pixels said, ‘Who?’",
+            "You brought vibes to a face-recognition fight.",
+            "The math has respectfully declined.",
         )
     elif score <= 50:
         options = (
             "Really?! You're making the model work overtime.",
             "There's something there, but don't bet the group chat on it.",
+            "Okay, I see the vision. Squinting helps.",
+            "Cousins in a parallel universe, maybe.",
+            "The resemblance clocked in part-time.",
+            "Not twins, but the casting director might pause.",
+            "There's a resemblance — on airplane mode.",
+            "The face-card echo is faint, but it's there.",
         )
     elif score <= 70:
         options = (
             "Get your eyes checked — the resemblance is right there.",
             "Okay, now you're onto something.",
+            "The casting director just leaned forward.",
+            "Same face energy, different save file.",
+            "Not twins, but the algorithm raised an eyebrow.",
+            "The resemblance did not come here to be subtle.",
+            "This is where the group chat starts arguing.",
+            "Close enough to confuse an aunt at a wedding.",
         )
     else:
         options = (
             "Duh!? Are you blind?",
             "Really?! What's wrong with you?",
             "You can't be serious.",
+            "At this point, the mirror is asking questions.",
+            "The resemblance just filed for joint custody.",
+            "Same face card, premium edition.",
+            "The algorithm did a double take.",
+            "Be honest — you uploaded the same person twice, didn't you?",
         )
+    if seed is None:
+        return secrets.choice(options)
     return options[seed % len(options)]
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import io
 import math
 import warnings
@@ -169,13 +168,6 @@ def draw_face_overlay(
         draw.text((x1 + 4, label_y + 4), label, fill=(255, 255, 255))
 
     return canvas
-
-
-def pair_seed(first: bytes, second: bytes) -> int:
-    """Create a stable, order-aware seed without retaining uploaded bytes."""
-
-    digest = hashlib.sha256(first + b"\0face-pair\0" + second).digest()
-    return int.from_bytes(digest[:8], byteorder="big", signed=False)
 
 
 def _clamp_box(
