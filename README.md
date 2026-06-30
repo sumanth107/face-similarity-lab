@@ -101,6 +101,23 @@ python -m unittest discover -s tests -v
 To exercise real inference, start the app and compare two clear portraits. Also check a non-face
 image, a group image, a profile/occluded face, and malformed input.
 
+## Included example images
+
+The [`test_images`](test_images/) directory contains four attributed Creative Commons portraits.
+Choose **Try a bundled example** inside the app, or select the files manually from the upload
+widgets:
+
+- `victoria_justice_2018.png` and `nina_dobrev_2018.png`: similar-looking different people;
+  observed score `51` (High).
+- `victoria_justice_2018.png` and `victoria_justice_2012.jpg`: same person across images;
+  observed score `98` (Very high).
+- `nina_dobrev_2018.png` and `nina_dobrev_2011.jpg`: same person across images;
+  observed score `96` (Very high).
+
+See [`test_images/README.md`](test_images/README.md) for exact sources, authors, licenses, and
+caveats. The values were measured with the pinned model and current calibration; they are not
+identity probabilities and can change when the implementation changes.
+
 ## Free Streamlit Community Cloud deployment
 
 1. Push this directory to a GitHub repository.

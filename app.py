@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from pathlib import Path
 
 import streamlit as st
 
@@ -31,6 +32,21 @@ st.set_page_config(
 )
 
 LOGGER = logging.getLogger(__name__)
+APP_DIRECTORY = Path(__file__).resolve().parent
+EXAMPLE_PAIRS = {
+    "Victoria Justice ↔ Nina Dobrev (similar-looking people)": (
+        "victoria_justice_2018.png",
+        "nina_dobrev_2018.png",
+    ),
+    "Victoria Justice 2018 ↔ 2012 (same person)": (
+        "victoria_justice_2018.png",
+        "victoria_justice_2012.jpg",
+    ),
+    "Nina Dobrev 2018 ↔ 2011 (same person)": (
+        "nina_dobrev_2018.png",
+        "nina_dobrev_2011.jpg",
+    ),
+}
 
 st.markdown(
     """
@@ -250,24 +266,49 @@ st.caption(
     "not intentionally save, forward, or include them in diagnostic downloads."
 )
 
+input_source = st.radio(
+    "Choose image source",
+    ("Upload images", "Try a bundled example"),
+    horizontal=True,
+)
 upload_col_a, upload_col_b = st.columns(2)
-with upload_col_a:
-    upload_a = st.file_uploader(
-        "Upload image A",
-        type=["jpg", "jpeg", "png", "webp"],
-        key="upload_a",
-        help="Maximum 10 MB and 20 megapixels.",
-    )
-with upload_col_b:
-    upload_b = st.file_uploader(
-        "Upload image B",
-        type=["jpg", "jpeg", "png", "webp"],
-        key="upload_b",
-        help="Maximum 10 MB and 20 megapixels.",
+bytes_a: bytes | None = None
+bytes_b: bytes | None = None
+caption_a = "Original image A"
+caption_b = "Original image B"
+
+if input_source == "Upload images":
+    with upload_col_a:
+        upload_a = st.file_uploader(
+            "Upload image A",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="upload_a",
+            help="Maximum 10 MB and 20 megapixels.",
+        )
+    with upload_col_b:
+        upload_b = st.file_uploader(
+            "Upload image B",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="upload_b",
+            help="Maximum 10 MB and 20 megapixels.",
+        )
+    bytes_a = upload_a.getvalue() if upload_a is not None else None
+    bytes_b = upload_b.getvalue() if upload_b is not None else None
+else:
+    example_name = st.selectbox("Example pair", tuple(EXAMPLE_PAIRS))
+    filename_a, filename_b = EXAMPLE_PAIRS[example_name]
+    try:
+        bytes_a = (APP_DIRECTORY / "test_images" / filename_a).read_bytes()
+        bytes_b = (APP_DIRECTORY / "test_images" / filename_b).read_bytes()
+        caption_a = filename_a.replace("_", " ").rsplit(".", 1)[0].title()
+        caption_b = filename_b.replace("_", " ").rsplit(".", 1)[0].title()
+    except OSError:
+        st.error("The bundled example images are missing from this deployment.")
+    st.caption(
+        "Bundled portraits are Creative Commons images from Wikimedia Commons. "
+        "Attribution and license details are in test_images/README.md."
     )
 
-bytes_a = upload_a.getvalue() if upload_a is not None else None
-bytes_b = upload_b.getvalue() if upload_b is not None else None
 signature = _upload_signature(bytes_a, bytes_b)
 _clear_stale_result(signature)
 
@@ -277,7 +318,7 @@ if bytes_a is not None:
     try:
         image_a = decode_image(bytes_a)
         with upload_col_a:
-            st.image(image_a, caption="Original image A", use_container_width=True)
+            st.image(image_a, caption=caption_a, use_container_width=True)
     except ImageValidationError as exc:
         with upload_col_a:
             st.error(str(exc))
@@ -285,7 +326,7 @@ if bytes_b is not None:
     try:
         image_b = decode_image(bytes_b)
         with upload_col_b:
-            st.image(image_b, caption="Original image B", use_container_width=True)
+            st.image(image_b, caption=caption_b, use_container_width=True)
     except ImageValidationError as exc:
         with upload_col_b:
             st.error(str(exc))
@@ -304,7 +345,7 @@ compare_clicked = st.button(
 )
 
 if not ready:
-    st.info("Upload two valid face images to begin.")
+    st.info("Upload two valid face images or choose a bundled example to begin.")
 
 if (
     compare_clicked
