@@ -68,7 +68,16 @@ st.markdown(
                 radial-gradient(circle at 12% 0%, rgba(216, 196, 246, 0.56), transparent 31rem),
                 linear-gradient(180deg, #f6f1fd 0%, #fbf9fe 56%, #f7f3fc 100%);
         }
-        [data-testid="stHeader"] {background: transparent;}
+        [data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        [data-testid="stAppDeployButton"],
+        #MainMenu,
+        footer {
+            display: none !important;
+            visibility: hidden !important;
+        }
         .block-container {max-width: 1180px; padding-top: 3.25rem;}
         h1, h2, h3, h4 {
             color: var(--ink);
