@@ -191,7 +191,7 @@ image, a group image, a profile/occluded face, and malformed input.
 ## Included example images
 
 The [`test_images`](test_images/) directory contains four attributed Creative Commons portraits.
-Choose **Try a bundled example** inside the app, or select the files manually from the upload
+Choose **Try Examples** inside the app, or select the files manually from the upload
 widgets:
 
 - `victoria_justice_2018.png` and `nina_dobrev_2018.png`: similar-looking different people;

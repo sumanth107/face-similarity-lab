@@ -199,9 +199,6 @@ def _show_result(result: ComparisonResult) -> None:
         )
     with context_col:
         st.write(f"**Result reliability:** {result.reliability}")
-        st.caption(
-            "Reliability describes face-detection and input quality. It does not alter the score."
-        )
 
     st.markdown(
         f'<div class="roast-box">{result.roast}</div>',
@@ -234,11 +231,8 @@ def _show_result(result: ComparisonResult) -> None:
                     result.second.aligned_face, caption="Aligned face B", width=160
                 )
             with explanation_col:
-                st.markdown("#### Human-readable explanation")
+                st.markdown("#### Explanation")
                 st.write(result.explanation)
-                st.info(
-                    "This explanation is generated directly from the measured values shown here."
-                )
 
             st.divider()
             face_a_col, face_b_col = st.columns(2)
@@ -321,9 +315,6 @@ def _show_result(result: ComparisonResult) -> None:
                 "This is a visual-similarity tool, not a definitive identity-verification, access-control, "
                 "law-enforcement, employment, or other high-stakes decision system."
             )
-            st.caption(
-                "Buffalo_L model weights are provided by InsightFace for non-commercial research use."
-            )
 
         diagnostic_json = json.dumps(diagnostics_dict(result), indent=2)
         st.download_button(
@@ -347,7 +338,7 @@ st.markdown(
 
 input_source = st.radio(
     "Choose image source",
-    ("Upload images", "Try a bundled example"),
+    ("Upload images", "Try Examples"),
     horizontal=True,
 )
 upload_col_a, upload_col_b = st.columns(2)
@@ -383,10 +374,6 @@ else:
         caption_b = filename_b.replace("_", " ").rsplit(".", 1)[0].title()
     except OSError:
         st.error("The bundled example images are missing from this deployment.")
-    st.caption(
-        "Bundled portraits are Creative Commons images from Wikimedia Commons. "
-        "Attribution and license details are in test_images/README.md."
-    )
 
 signature = _upload_signature(bytes_a, bytes_b)
 _clear_stale_result(signature)
@@ -424,7 +411,7 @@ compare_clicked = st.button(
 )
 
 if not ready:
-    st.info("Upload two valid face images or choose a bundled example to begin.")
+    st.info("Upload two valid face images or choose Try Examples to begin.")
 
 if (
     compare_clicked
