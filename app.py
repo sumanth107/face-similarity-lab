@@ -119,6 +119,22 @@ st.markdown(
             font-size: 1.08rem;
         }
         .technical-note {color: var(--muted-ink); font-size: 0.9rem;}
+        .sumanth-watermark {
+            bottom: 0.85rem;
+            color: var(--ink);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            opacity: 0.24;
+            pointer-events: none;
+            position: fixed;
+            right: 1.15rem;
+            user-select: none;
+            z-index: 999;
+        }
+        @media (max-width: 640px) {
+            .sumanth-watermark {font-size: 0.7rem; right: 0.75rem;}
+        }
     </style>
     """,
     unsafe_allow_html=True,
@@ -314,6 +330,10 @@ def _show_result(result: ComparisonResult) -> None:
 
 st.markdown('<p class="app-kicker">Portrait comparison</p>', unsafe_allow_html=True)
 st.title("Face Similarity")
+st.markdown(
+    '<div class="sumanth-watermark">I kinda told you -Sumanth</div>',
+    unsafe_allow_html=True,
+)
 
 input_source = st.radio(
     "Choose image source",
